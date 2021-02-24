@@ -1752,3 +1752,15 @@ end
     @test eltype(StepRangeLen(Int8(1), Int8(2), 3, 2)) === Int8
     @test typeof(step(StepRangeLen(Int8(1), Int8(2), 3, 2))) === Int8
 end
+
+@testset "Non-Int64 endpoints that are identical (#39798)" begin
+    for T in DataType[Float64,Int8,Int16,Int32,Int64,Int128,UInt8,UInt16,UInt32,UInt64],
+        r in [ LinRange(1, 1, 10), StepRangeLen(7, 0 , 5) ]
+        let start=T(first(r)), stop=T(last(r)), step=T(step(r)), length=length(r)
+            @test range(  start, stop,       length) == r
+            @test range(  start, stop;       length) == r
+            @test range(  start; stop,       length) == r
+            @test range(; start, stop,       length) == r
+        end
+    end
+end
