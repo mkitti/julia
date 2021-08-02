@@ -473,6 +473,14 @@ ENV["JULIA_WARN_COLOR"] = :yellow
 ENV["JULIA_INFO_COLOR"] = :cyan
 ```
 
+## Customizing Error Display
+
+The method [`REPL.error_display_handler`](@ref) can be extended or overriden to customize error display.
+By default it invokes `REPL.default_error_display_handler`. The first argument is the root Exception
+which can be used to change the error display for custom errors using multiple dispatch.
+
+See the Extended Help for `REPL.error_display_handler` for details.
+
 ## TerminalMenus
 
 TerminalMenus is a submodule of the Julia REPL and enables small, low-profile interactive menus in the terminal.

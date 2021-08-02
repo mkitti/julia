@@ -280,7 +280,10 @@ function print_response(errio::IO, response, show_value::Bool, have_color::Bool,
         try
             Base.sigatomic_end()
             if iserr
-                Base.invokelatest(Base.display_error, errio, val)
+                # Get the root cause exception
+                root_exception = first(last(val))
+                # Dispatch on the root cause exception
+                error_display_handler(root_exception, errio, val)
             else
                 if val !== nothing && show_value
                     try
@@ -317,6 +320,71 @@ function print_response(errio::IO, response, show_value::Bool, have_color::Bool,
     end
     Base.sigatomic_end()
     nothing
+end
+
+"""
+    error_display_handler(root, errio, stack)
+
+Handle errors caught by the REPL before display.
+`root` is the original `Exception` at the bottom of the stack.
+`errio` is the `IO` used to display errors.
+`stack` is the `ExceptionStack` related to the error.
+
+Dispatch on `root` to catch custom errors.
+
+# Extended Help
+
+Here are a few examples of how to customize the REPL's error display.
+
+```
+julia> import REPL
+
+julia> function REPL.error_display_handler(root, errio, stack)
+           println(\"""
+           Hi. This is Juggles the Julia error helper.
+           You seem to have made a mistake.
+           I'm here to help.
+           \""")
+
+           REPL.default_error_display_handler(root, errio, stack)
+       end
+
+julia> throw(ErrorException("?"))
+Hi. This is Juggles the Julia error helper.
+You seem to have made a mistake.
+I'm here to help.
+
+ERROR: ?
+Stacktrace:
+ [1] top-level scope
+   @ REPL[37]:1
+
+julia> struct IllegalError <: Exception end
+
+julia> REPL.error_display_handler(root::IllegalError, errio, stack) = println("Illegal Exception. You will be prosecuted.")
+
+julia> throw(IllegalError())
+Illegal Exception. You will be prosecuted.
+```
+"""
+error_display_handler(root, errio, stack) = default_error_display_handler(root, errio, stack)
+
+"""
+    default_error_display_handler(root, errio, stack)
+
+Default implementation of `error_display_handler`.
+"""
+function default_error_display_handler(root, errio, stack)
+    show_error = true
+    if root == UndefVarError(:help)
+        # Show friendly help message when someone types help or help()
+        Base.invokelatest(display, Base.Docs.parsedoc(Base.Docs.keywords[:help]))
+        show_error = false
+    end
+
+    if show_error
+        Base.invokelatest(Base.display_error, errio, stack)
+    end
 end
 
 # A reference to a backend that is not mutable
