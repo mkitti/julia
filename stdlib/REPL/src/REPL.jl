@@ -121,7 +121,24 @@ end
 # Temporary alias until Documenter updates
 const softscope! = softscope
 
-const repl_ast_transforms = Any[softscope] # defaults for new REPL backends
+"""
+    print_exit_hint(ex)
+
+Print a hint about how to exit Julia if the user just types "exit" while using the REPL.
+"""
+function print_exit_hint(@nospecialize ex)
+    if ex isa Expr && ex.head === :toplevel && length(ex.args) == 2 && ex.args[2] === :exit
+        quote
+            println("suggestion: To exit Julia, use Ctrl-D, or type exit() and press enter.")
+            # Return the method exit
+            exit
+        end
+    else
+        return ex
+    end
+end
+
+const repl_ast_transforms = Any[softscope, print_exit_hint] # defaults for new REPL backends
 
 function eval_user_input(@nospecialize(ast), backend::REPLBackend)
     lasterr = nothing
@@ -370,7 +387,6 @@ function run_frontend(repl::BasicREPL, backend::REPLBackendRef)
         if !isempty(line)
             response = eval_with_backend(ast, backend)
             print_response(repl, response, !ends_with_semicolon(line), false)
-            print_exit_hint(repl, line)
         end
         write(repl.terminal, '\n')
         ((!interrupted && isempty(line)) || hit_eof) && break
@@ -797,7 +813,6 @@ function respond(f, repl, main; pass_empty::Bool = false, suppress_on_semicolon:
             end
             hide_output = suppress_on_semicolon && ends_with_semicolon(line)
             print_response(repl, response, !hide_output, hascolor(repl))
-            print_exit_hint(repl, line)
         end
         prepare_next(repl)
         reset_state(s)
@@ -1226,7 +1241,6 @@ function run_frontend(repl::StreamREPL, backend::REPLBackendRef)
             end
             response = eval_with_backend(ast, backend)
             print_response(repl, response, !ends_with_semicolon(line), have_color)
-            print_exit_hint(repl, line)
         end
     end
     # Terminate Backend
@@ -1235,12 +1249,5 @@ function run_frontend(repl::StreamREPL, backend::REPLBackendRef)
     nothing
 end
 
-print_exit_hint(repl::AbstractREPL, line) = print_exit_hint(outstream(repl), line)
-function print_exit_hint(io::IO, line)
-    if lowercase(strip(line)) == "exit"
-        println(io, "\nTo exit Julia, use Ctrl-D, or type exit() and press enter.")
-    end
-    return nothing
-end
 
 end # module
