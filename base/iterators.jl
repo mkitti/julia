@@ -521,7 +521,12 @@ julia> unzip([[1, "apple"], [2.5, "orange"], [0, "mango"]])
 function unzip(itrs)
     n = Base.haslength(itrs) ? length(itrs) : nothing
     outer = iterate(itrs)
-    outer === nothing && return ()
+    if outer === nothing
+        if IteratorEltype(itrs) === HasEltype() && eltype(itrs) !== Union{}
+            return Base.map(f->Vector{f}(), fieldtypes(eltype(itrs)))
+        end
+        return ()
+    end
     vals, state = outer
     vecs = ntuple(length(vals)) do i
         x = vals[i]
