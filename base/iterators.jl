@@ -15,8 +15,8 @@ using .Base:
     AbstractRange, AbstractUnitRange, UnitRange, LinearIndices, TupleOrBottom,
     (:), |, +, -, *, !==, !, ==, !=, <=, <, >, >=, =>, missing, copyto!,
     any, _counttuple, eachindex, ntuple, zero, prod, reduce, in, firstindex, lastindex,
-    tail, fieldtypes, min, max, minimum, zero, oneunit, promote, promote_shape, LazyString,
-    afoldl, mod1, @default_eltype
+    tail, fieldtypes, min, max, minimum, zero, oneunit, promote, promote_shape, push!,
+    LazyString, afoldl, mod1, @default_eltype
 using .Core
 using Core: @doc
 
