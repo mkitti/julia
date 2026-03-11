@@ -1237,6 +1237,18 @@ isdone(_, _...) = missing
 Advance the iterator to obtain the next element. If no elements
 remain, `nothing` should be returned. Otherwise, a 2-tuple of the
 next element and the new iteration state should be returned.
+
+# Arguments
+- `iter`: The iterator from which to obtain elements.
+- `state`: Optional argument returned from a prior call to `iterate`.
+
+# Returns
+- `Tuple{Any, Any}`: A 2-tuple, `(next_element, state)`, if elements remain.
+- `Nothing`: `nothing`, if no elements remain.
+
+# See also
+- [`Iteration interface`](@ref man-interface-iteration) for methods implemented by iterators.
+- [`Base.Iterators`](@ref Iteration Utilities) for utility methods used to work with iterators
 """
 function iterate end
 

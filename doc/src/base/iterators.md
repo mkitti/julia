@@ -1,4 +1,6 @@
-# Iteration utilities
+# [Iteration utilities](@id base-iterator-utilities)
+
+The `Base.Iterators` module contains utility methods to manipulate and construct iterators that implement the [iteration interface](@ref man-interface-iteration).
 
 ```@docs
 Base.Iterators.Stateful

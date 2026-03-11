@@ -1,7 +1,17 @@
 # This file is a part of Julia. License is MIT: https://julialang.org/license
 
 """
-Methods for working with Iterators.
+`Base.Iterators` contains methods to manipulate types that implement the
+[iterator interface](@ref man-interface-iterators). See the
+[Iterator Utilities section](@ref base-iterator-utilities) for details on
+individual functions.
+
+Many functions contained within `Iterators` are lazy in that they
+do not eagerly retrieve elements from the parent iterators provided as
+arguments. Rather they return child iterators that only retrieve elements from
+their parent iterators when iterated upon. For example, `Iterators.filter` and
+`Iterators.map` return lazy iterators where as `Base.filter` and `Base.map`
+eagerly return collected elements.
 """
 baremodule Iterators
 
